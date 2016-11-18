@@ -2133,6 +2133,7 @@ ScriptEditor::ScriptEditor(EditorNode *p_editor) {
 	script_search_menu = memnew( MenuButton );
 	menu_hb->add_child(script_search_menu);
 	script_search_menu->set_text(TTR("Search"));
+	script_search_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/classes", TTR("Classes"), KEY_MASK_CMD|KEY_P), SEARCH_CLASSES);
 	script_search_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/find", TTR("Find.."), KEY_MASK_CMD|KEY_F), HELP_SEARCH_FIND);
 	script_search_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/find_next", TTR("Find Next"), KEY_F3), HELP_SEARCH_FIND_NEXT);
 	script_search_menu->get_popup()->connect("item_pressed", this,"_menu_option");
