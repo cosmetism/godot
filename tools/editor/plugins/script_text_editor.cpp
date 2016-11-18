@@ -873,7 +873,9 @@ void ScriptTextEditor::_edit_option(int p_op) {
 			color_panel->popup();
 		} break;
 
-
+		case SEARCH_CLASSES: {
+			help_index->popup();
+		} break;
 		case SEARCH_FIND: {
 
 			code_editor->get_find_replace_bar()->popup_search();
@@ -1319,6 +1321,7 @@ ScriptTextEditor::ScriptTextEditor() {
 	search_menu = memnew( MenuButton );
 	edit_hb->add_child(search_menu);
 	search_menu->set_text(TTR("Search"));
+	search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/classes"), SEARCH_CLASSES);
 	search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find"), SEARCH_FIND);
 	search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find_next"), SEARCH_FIND_NEXT);
 	search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find_previous"), SEARCH_FIND_PREV);
@@ -1342,6 +1345,10 @@ ScriptTextEditor::ScriptTextEditor() {
 
 
 	code_editor->get_text_edit()->set_drag_forwarding(this);
+
+	help_index = memnew( EditorHelpIndex );
+	add_child(help_index);
+	help_index->connect("open_class",this,"_help_class_open");
 }
 
 static ScriptEditorBase * create_editor(const Ref<Script>& p_script) {
@@ -1380,6 +1387,7 @@ void ScriptTextEditor::register_editor() {
 	ED_SHORTCUT("script_text_editor/goto_next_breakpoint", TTR("Goto Next Breakpoint"), KEY_MASK_CTRL|KEY_PERIOD);
 	ED_SHORTCUT("script_text_editor/goto_previous_breakpoint", TTR("Goto Previous Breakpoint"), KEY_MASK_CTRL|KEY_COMMA);
 
+	ED_SHORTCUT("script_text_editor/classes", TTR("Classes"), KEY_MASK_CMD|KEY_P);
 	ED_SHORTCUT("script_text_editor/find", TTR("Find.."), KEY_MASK_CMD|KEY_F);
 	ED_SHORTCUT("script_text_editor/find_next", TTR("Find Next"), KEY_F3);
 	ED_SHORTCUT("script_text_editor/find_previous", TTR("Find Previous"), KEY_MASK_SHIFT|KEY_F3);
