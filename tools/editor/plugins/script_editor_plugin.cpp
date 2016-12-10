@@ -945,7 +945,7 @@ void ScriptEditor::_menu_option(int p_option) {
 		}
 	}
 
-	EditorHelp *help = tab_container->get_child(selected)->cast_to<EditorHelp>();
+	EditorHelp *help = tab_container->get_current_tab_control()->cast_to<EditorHelp>();
 	if (help) {
 
 		switch(p_option) {
@@ -1620,6 +1620,7 @@ void ScriptEditor::apply_scripts() const {
 void ScriptEditor::_editor_play() {
 
 	debugger->start();
+	debug_menu->get_popup()->grab_focus();
 	debug_menu->get_popup()->set_item_disabled( debug_menu->get_popup()->get_item_index(DEBUG_NEXT), true );
 	debug_menu->get_popup()->set_item_disabled( debug_menu->get_popup()->get_item_index(DEBUG_STEP), true );
 	debug_menu->get_popup()->set_item_disabled( debug_menu->get_popup()->get_item_index(DEBUG_BREAK), false );
@@ -1908,19 +1909,14 @@ void ScriptEditor::_update_selected_editor_menu() {
 				se->get_edit_menu()->hide();
 		}
 
-		EditorHelp *eh = tab_container->get_child(i)->cast_to<EditorHelp>();
-
-		if (eh) {
-
-			if (current)
-				script_search_menu->show();
-			else
-				script_search_menu->hide();
-		}
-
-
 	}
 
+	EditorHelp *eh=tab_container->get_current_tab_control()->cast_to<EditorHelp>();
+	if (eh) {
+		script_search_menu->show();
+	} else {
+		script_search_menu->hide();
+	}
 }
 
 void ScriptEditor::_update_history_pos(int p_new_pos) {
@@ -2137,6 +2133,7 @@ ScriptEditor::ScriptEditor(EditorNode *p_editor) {
 	script_search_menu = memnew( MenuButton );
 	menu_hb->add_child(script_search_menu);
 	script_search_menu->set_text(TTR("Search"));
+	script_search_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/classes", TTR("Classes"), KEY_MASK_CMD|KEY_P), SEARCH_CLASSES);
 	script_search_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/find", TTR("Find.."), KEY_MASK_CMD|KEY_F), HELP_SEARCH_FIND);
 	script_search_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/find_next", TTR("Find Next"), KEY_F3), HELP_SEARCH_FIND_NEXT);
 	script_search_menu->get_popup()->connect("item_pressed", this,"_menu_option");

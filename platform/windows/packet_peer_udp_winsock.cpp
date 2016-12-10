@@ -112,15 +112,23 @@ void PacketPeerUDPWinsock::_set_blocking(bool p_blocking) {
 	};
 }
 
-Error PacketPeerUDPWinsock::listen(int p_port, IP_Address::AddrType p_address_type, int p_recv_buffer_size) {
+Error PacketPeerUDPWinsock::listen(int p_port, IP_Address::AddrType p_type, int p_recv_buffer_size) {
 
 	close();
-	int sock = _get_socket(p_address_type);
+	int sock = _get_socket(p_type);
 	if (sock == -1 )
 		return ERR_CANT_CREATE;
 
+	if(p_type == IP_Address::TYPE_IPV6) {
+		// Use IPv6 only socket
+		int yes = 1;
+		if(setsockopt(sockfd, IPPROTO_IPV6, IPV6_V6ONLY, (const char*)&yes, sizeof(yes)) != 0) {
+				WARN_PRINT("Unable to unset IPv4 address mapping over IPv6");
+		}
+	}
+
 	struct sockaddr_storage addr = {0};
-	size_t addr_size = _set_listen_sockaddr(&addr, p_port, p_address_type, NULL);
+	size_t addr_size = _set_listen_sockaddr(&addr, p_port, p_type, NULL);
 
 	if (bind(sock, (struct sockaddr*)&addr, addr_size) == -1 ) {
 		close();
@@ -166,7 +174,7 @@ Error PacketPeerUDPWinsock::_poll(bool p_wait) {
 			rb.write(&type, 1);
 			struct sockaddr_in* sin_from = (struct sockaddr_in*)&from;
 			rb.write((uint8_t*)&sin_from->sin_addr, 4);
-			port = sin_from->sin_port;
+			port = ntohs(sin_from->sin_port);
 
 		} else if (from.ss_family == AF_INET6) {
 
@@ -176,7 +184,7 @@ Error PacketPeerUDPWinsock::_poll(bool p_wait) {
 			struct sockaddr_in6* s6_from = (struct sockaddr_in6*)&from;
 			rb.write((uint8_t*)&s6_from->sin6_addr, 16);
 
-			port = s6_from->sin6_port;
+			port = ntohs(s6_from->sin6_port);
 
 		} else {
 			// WARN_PRINT("Ignoring packet with unknown address family");
@@ -239,11 +247,7 @@ int PacketPeerUDPWinsock::_get_socket(IP_Address::AddrType p_type) {
 	if (sockfd != -1)
 		return sockfd;
 
-	int family = p_type == IP_Address::TYPE_IPV6 ? AF_INET6 : AF_INET;
-
-	sockfd = socket(family, SOCK_DGRAM, IPPROTO_UDP);
-	ERR_FAIL_COND_V( sockfd == -1, -1 );
-	//fcntl(sockfd, F_SETFL, O_NONBLOCK);
+	sockfd = _socket_create(p_type, SOCK_DGRAM, IPPROTO_UDP);
 
 	return sockfd;
 }

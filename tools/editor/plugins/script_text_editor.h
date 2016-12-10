@@ -55,6 +55,7 @@ class ScriptTextEditor : public ScriptEditorBase {
 
 	PopupPanel *color_panel;
 	ColorPicker *color_picker;
+	EditorHelpIndex *help_index;
 	int color_line;
 	String color_args;
 
@@ -75,6 +76,7 @@ class ScriptTextEditor : public ScriptEditorBase {
 		EDIT_INDENT_LEFT,
 		EDIT_CLONE_DOWN,
 		EDIT_PICK_COLOR,
+		SEARCH_CLASSES,
 		SEARCH_FIND,
 		SEARCH_FIND_NEXT,
 		SEARCH_FIND_PREV,
